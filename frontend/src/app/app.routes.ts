@@ -12,6 +12,7 @@ import { NotificationsPage } from './pages/notifications.page';
 import { PremiumPage } from './pages/premium.page';
 import { LearningCatalogPage } from './pages/learning-catalog.page';
 import { PasswordResetPage } from './pages/password-reset.page';
+import { AdminPage } from './pages/admin.page';
 
 export const routes: Routes = [
   {path: 'login', component: AuthPage},
@@ -31,5 +32,6 @@ export const routes: Routes = [
   {path: 'chat', component: ChatPage, canActivate: [authGuard]},
   {path: 'notifications', component: NotificationsPage, canActivate: [authGuard]},
   {path: 'premium', component: PremiumPage, canActivate: [authGuard]},
+  {path: 'admin', component: AdminPage, canActivate: [authGuard]},
   {path: '**', redirectTo: ''}
 ];

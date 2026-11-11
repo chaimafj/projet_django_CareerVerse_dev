@@ -49,9 +49,7 @@ class CareerNet:
 
     def score(self, user_interests: Iterable[str], career_interests: Iterable[str]) -> float:
         legacy_score = self._legacy_score(user_interests, career_interests)
-        latent_score = infer_score(user_interests, career_interests, load_weights())
-        blended = (0.8 * legacy_score) + (0.2 * latent_score)
-        return float(max(0.0, min(100.0, blended)))
+        return float(max(0.0, min(100.0, legacy_score)))
 
     def recommend(self, user_interests: Iterable[str], career_interests: Iterable[str]) -> float:
         return self.score(user_interests, career_interests)

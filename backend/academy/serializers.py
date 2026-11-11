@@ -37,8 +37,11 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "name", "interests", "university", "specialty", "study_level", "bio", "photo_url"]
-        read_only_fields = ["id", "email", "photo_url"]
+        fields = [
+            "id", "email", "name", "interests", "university", "specialty",
+            "study_level", "bio", "is_staff", "is_superuser", "photo_url",
+        ]
+        read_only_fields = ["id", "email", "is_staff", "is_superuser", "photo_url"]
         extra_kwargs = {"name": {"allow_blank": False}}
 
     def to_internal_value(self, data):

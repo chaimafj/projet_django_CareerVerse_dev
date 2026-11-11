@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_GET
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -98,6 +98,23 @@ class MeView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class AdminUserListView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        return Response([
+            {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "is_staff": user.is_staff,
+                "is_superuser": user.is_superuser,
+                "is_active": user.is_active,
+            }
+            for user in User.objects.order_by("email")
+        ])
 
 
 class CareerListView(APIView):

@@ -31,6 +31,11 @@ import { NotificationCountService } from './core/notification-count.service';
               {{ (dark() ? 'Light theme' : 'Dark theme') | t }}
             </button>
             @if (auth.user(); as user) {
+              @if (user.is_staff) {
+                <a routerLink="/admin" class="admin-pill" [attr.aria-label]="('Administration' | t) + ' · ' + ('Admin connected' | t)">
+                  <app-icon name="shield" /> {{ 'Admin' | t }}
+                </a>
+              }
               <a routerLink="/notifications" class="notification-bell" [attr.aria-label]="('Notifications' | t) + ' · ' + (notificationCount.error() ? ('Notification count unavailable' | t) : notificationCount.unread() + ' ' + ('Unread notifications' | t))" [attr.title]="(notificationCount.error() ? 'Notification count unavailable' : 'Notifications') | t">
                 <app-icon name="bell" />
                 @if (notificationCount.error()) { <span class="notification-badge" aria-hidden="true">!</span> }
@@ -51,7 +56,7 @@ import { NotificationCountService } from './core/notification-count.service';
             <a routerLink="/notifications" routerLinkActive="active"><app-icon name="bell" />{{ 'Notifications' | t }}@if (!notificationCount.error() && notificationCount.unread() > 0) { <span class="nav-notification-count">{{ notificationCount.unread() }}</span> }</a>
             <a routerLink="/premium" routerLinkActive="active"><app-icon name="crown" />{{ 'Premium' | t }}</a>
             @if (auth.user()?.is_staff) {
-              <a href="/admin/" target="_blank" rel="noopener"><app-icon name="shield" /> {{ 'Administration' | t }}</a>
+              <a routerLink="/admin" routerLinkActive="active"><app-icon name="shield" /> {{ 'Administration' | t }}</a>
             }
             <div class="sidebar-note"><span class="eyebrow">{{ 'SMALL STEPS. BIG FUTURE.' | t }}</span><p>{{ 'Learn a skill. Try a career. Find what feels right.' | t }}</p></div>
             <button class="logout" [disabled]="loggingOut()" (click)="logout()"><app-icon name="logout" />{{ 'Sign out' | t }}</button>

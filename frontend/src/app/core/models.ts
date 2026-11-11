@@ -8,6 +8,7 @@ export interface User {
   study_level: string;
   bio: string;
   is_staff: boolean;
+  is_superuser?: boolean;
   photo_url: string | null;
 }
 
