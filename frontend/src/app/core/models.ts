@@ -13,6 +13,7 @@ export interface User {
 }
 
 export interface Career {
+  id?: number;
   slug: string;
   title: string;
   summary: string;

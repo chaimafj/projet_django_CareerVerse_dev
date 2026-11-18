@@ -100,7 +100,9 @@ class MeView(APIView):
         return Response(serializer.data)
 
 
-class AdminUserListView(APIView):
+@method_decorator(csrf_protect, name="dispatch")
+@method_decorator(csrf_protect, name="dispatch")
+class AdminUserListCreateView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
@@ -115,6 +117,333 @@ class AdminUserListView(APIView):
             }
             for user in User.objects.order_by("email")
         ])
+
+    def post(self, request):
+        email = str(request.data.get("email", "")).strip().lower()
+        name = str(request.data.get("name", "")).strip()
+        password = request.data.get("password")
+        is_staff = bool(request.data.get("is_staff", False))
+        is_superuser = bool(request.data.get("is_superuser", False))
+        is_active = bool(request.data.get("is_active", True))
+
+        if not email or not name or not password:
+            return Response({"detail": "Email, name and password are required."}, status=400)
+
+        if User.objects.filter(email__iexact=email).exists():
+            return Response({"email": "An account with this email already exists."}, status=400)
+
+        user = User.objects.create_user(
+            email=email,
+            password=password,
+            name=name,
+            is_staff=is_staff or is_superuser,
+            is_superuser=is_superuser,
+            is_active=is_active,
+        )
+
+        return Response({
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_active": user.is_active,
+        }, status=201)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminUserDetailView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        return Response({
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_active": user.is_active,
+        })
+
+    def patch(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        payload = request.data or {}
+        email = str(payload.get("email", user.email)).strip().lower()
+        name = str(payload.get("name", user.name)).strip()
+        password = payload.get("password")
+        is_staff = payload.get("is_staff", user.is_staff)
+        is_superuser = payload.get("is_superuser", user.is_superuser)
+        is_active = payload.get("is_active", user.is_active)
+
+        if not email or not name:
+            return Response({"detail": "Email and name are required."}, status=400)
+        if email != user.email and User.objects.filter(email__iexact=email).exists():
+            return Response({"email": "An account with this email already exists."}, status=400)
+
+        user.email = email
+        user.name = name
+        user.is_staff = bool(is_staff) or bool(is_superuser)
+        user.is_superuser = bool(is_superuser)
+        user.is_active = bool(is_active)
+        if password:
+            user.set_password(str(password))
+        user.save(update_fields=["email", "name", "is_staff", "is_superuser", "is_active", "password"])
+        return Response({
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,
+            "is_active": user.is_active,
+        })
+
+    def delete(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        if user == request.user:
+            return Response({"detail": "You cannot delete your own admin account."}, status=400)
+        user.delete()
+        return Response(status=204)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminCareerListCreateView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        return Response([
+            {
+                "id": career.id,
+                "slug": career.slug,
+                "title": career.title,
+                "summary": career.summary,
+                "description": career.description,
+                "category": career.category,
+                "tools": career.tools,
+                "interests": career.interests,
+                "salary": career.salary,
+                "education": career.education,
+                "outlook": career.outlook,
+            }
+            for career in Career.objects.order_by("title")
+        ])
+
+    def post(self, request):
+        payload = request.data or {}
+        required = ["slug", "title", "summary", "description", "category", "salary", "education", "outlook"]
+        if not all(str(payload.get(field, "")).strip() for field in required):
+            return Response({"detail": "Missing required career fields."}, status=400)
+        slug = str(payload["slug"]).strip()
+        data = {
+            "slug": slug,
+            "title": str(payload["title"]).strip(),
+            "summary": str(payload["summary"]).strip(),
+            "description": str(payload["description"]).strip(),
+            "category": str(payload["category"]).strip(),
+            "tools": payload.get("tools", []) if isinstance(payload.get("tools", []), list) else [str(payload.get("tools", ""))],
+            "interests": payload.get("interests", []) if isinstance(payload.get("interests", []), list) else [str(payload.get("interests", ""))],
+            "salary": str(payload["salary"]).strip(),
+            "education": str(payload["education"]).strip(),
+            "outlook": str(payload["outlook"]).strip(),
+        }
+        if Career.objects.filter(slug__iexact=slug).exists():
+            return Response({"slug": "A career with this slug already exists."}, status=400)
+        career = Career.objects.create(**data)
+        return Response({
+            "id": career.id,
+            "slug": career.slug,
+            "title": career.title,
+            "summary": career.summary,
+            "description": career.description,
+            "category": career.category,
+            "tools": career.tools,
+            "interests": career.interests,
+            "salary": career.salary,
+            "education": career.education,
+            "outlook": career.outlook,
+        }, status=201)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminCareerDetailView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        career = get_object_or_404(Career, pk=pk)
+        payload = request.data or {}
+        slug = str(payload.get("slug", career.slug)).strip()
+        title = str(payload.get("title", career.title)).strip()
+        summary = str(payload.get("summary", career.summary)).strip()
+        description = str(payload.get("description", career.description)).strip()
+        category = str(payload.get("category", career.category)).strip()
+        salary = str(payload.get("salary", career.salary)).strip()
+        education = str(payload.get("education", career.education)).strip()
+        outlook = str(payload.get("outlook", career.outlook)).strip()
+
+        required = [slug, title, summary, description, category, salary, education, outlook]
+        if not all(required):
+            return Response({"detail": "Missing required career fields."}, status=400)
+
+        def parse_list(value, existing):
+            if value is None:
+                return existing
+            if isinstance(value, list):
+                return [str(item).strip() for item in value if str(item).strip()]
+            if isinstance(value, str):
+                items = [part.strip() for part in value.split(",")]
+                return [item for item in items if item]
+            return existing
+
+        tools = parse_list(payload.get("tools", career.tools), career.tools)
+        interests = parse_list(payload.get("interests", career.interests), career.interests)
+
+        if slug != career.slug and Career.objects.filter(slug__iexact=slug).exists():
+            return Response({"slug": "A career with this slug already exists."}, status=400)
+
+        career.slug = slug
+        career.title = title
+        career.summary = summary
+        career.description = description
+        career.category = category
+        career.tools = tools
+        career.interests = interests
+        career.salary = salary
+        career.education = education
+        career.outlook = outlook
+        career.save()
+        return Response({
+            "id": career.id,
+            "slug": career.slug,
+            "title": career.title,
+            "summary": career.summary,
+            "description": career.description,
+            "category": career.category,
+            "tools": career.tools,
+            "interests": career.interests,
+            "salary": career.salary,
+            "education": career.education,
+            "outlook": career.outlook,
+        })
+
+    def delete(self, request, pk):
+        career = get_object_or_404(Career, pk=pk)
+        career.delete()
+        return Response(status=204)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminLabListCreateView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        return Response([
+            {
+                "id": lab.id,
+                "career_id": lab.career_id,
+                "career_title": lab.career.title,
+                "title": lab.title,
+                "level": lab.level,
+                "scenario": lab.scenario,
+                "objectives": lab.objectives,
+                "expected_seconds": lab.expected_seconds,
+                "is_premium": lab.is_premium,
+                "question_count": lab.questions.count(),
+            }
+            for lab in Lab.objects.select_related("career").order_by("career__title", "title")
+        ])
+
+    def post(self, request):
+        payload = request.data or {}
+        career_id = payload.get("career_id")
+        title = str(payload.get("title", "")).strip()
+        scenario = str(payload.get("scenario", "")).strip()
+        objectives = payload.get("objectives", [])
+        level = payload.get("level", 1)
+        expected_seconds = payload.get("expected_seconds", 180)
+        is_premium = bool(payload.get("is_premium", False))
+
+        if not career_id or not title:
+            return Response({"detail": "Career and title are required."}, status=400)
+        try:
+            career = Career.objects.get(pk=career_id)
+        except Career.DoesNotExist:
+            return Response({"career_id": "Career not found."}, status=400)
+        if not isinstance(objectives, list):
+            objectives = [str(objectives)] if str(objectives).strip() else []
+        lab = Lab.objects.create(
+            career=career,
+            title=title,
+            level=int(level),
+            scenario=scenario,
+            objectives=[str(item).strip() for item in objectives if str(item).strip()],
+            expected_seconds=int(expected_seconds),
+            is_premium=is_premium,
+        )
+        return Response({
+            "id": lab.id,
+            "career_id": lab.career_id,
+            "career_title": lab.career.title,
+            "title": lab.title,
+            "level": lab.level,
+            "scenario": lab.scenario,
+            "objectives": lab.objectives,
+            "expected_seconds": lab.expected_seconds,
+            "is_premium": lab.is_premium,
+            "question_count": lab.questions.count(),
+        }, status=201)
+
+
+@method_decorator(csrf_protect, name="dispatch")
+class AdminLabDetailView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        lab = get_object_or_404(Lab, pk=pk)
+        payload = request.data or {}
+        if "career_id" in payload:
+            career_id = payload.get("career_id")
+            try:
+                career = Career.objects.get(pk=career_id)
+            except Career.DoesNotExist:
+                return Response({"career_id": "Career not found."}, status=400)
+            lab.career = career
+        if "title" in payload:
+            title = str(payload.get("title", lab.title)).strip()
+            if not title:
+                return Response({"detail": "Title is required."}, status=400)
+            lab.title = title
+        if "level" in payload:
+            lab.level = int(payload.get("level", lab.level))
+        if "scenario" in payload:
+            lab.scenario = str(payload.get("scenario", lab.scenario)).strip()
+        if "objectives" in payload:
+            objectives = payload.get("objectives", lab.objectives)
+            if not isinstance(objectives, list):
+                objectives = [str(objectives)] if str(objectives).strip() else []
+            lab.objectives = [str(item).strip() for item in objectives if str(item).strip()]
+        if "expected_seconds" in payload:
+            lab.expected_seconds = int(payload.get("expected_seconds", lab.expected_seconds))
+        if "is_premium" in payload:
+            lab.is_premium = bool(payload.get("is_premium", lab.is_premium))
+        lab.full_clean()
+        lab.save()
+        return Response({
+            "id": lab.id,
+            "career_id": lab.career_id,
+            "career_title": lab.career.title,
+            "title": lab.title,
+            "level": lab.level,
+            "scenario": lab.scenario,
+            "objectives": lab.objectives,
+            "expected_seconds": lab.expected_seconds,
+            "is_premium": lab.is_premium,
+            "question_count": lab.questions.count(),
+        })
+
+    def delete(self, request, pk):
+        lab = get_object_or_404(Lab, pk=pk)
+        lab.delete()
+        return Response(status=204)
 
 
 class CareerListView(APIView):

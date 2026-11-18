@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth.service';
+import { adminGuard, authGuard } from './core/auth.service';
 import { AuthPage } from './pages/auth.page';
 import { DashboardPage } from './pages/dashboard.page';
 import { CareersPage, CareerPage } from './pages/careers.page';
@@ -32,6 +32,6 @@ export const routes: Routes = [
   {path: 'chat', component: ChatPage, canActivate: [authGuard]},
   {path: 'notifications', component: NotificationsPage, canActivate: [authGuard]},
   {path: 'premium', component: PremiumPage, canActivate: [authGuard]},
-  {path: 'admin', component: AdminPage, canActivate: [authGuard]},
+  {path: 'admin', component: AdminPage, canActivate: [authGuard, adminGuard]},
   {path: '**', redirectTo: ''}
 ];

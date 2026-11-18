@@ -15,7 +15,7 @@ export class ApiService {
   patch<T>(path: string, body: unknown): Promise<T> {
     return firstValueFrom(this.http.patch<T>(`/api/${path}`, body));
   }
-  delete(path: string, body: unknown): Promise<void> {
+  delete(path: string, body: unknown = {}): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`/api/${path}`, {body}));
   }
   csrf() { return this.get<unknown>('csrf/'); }

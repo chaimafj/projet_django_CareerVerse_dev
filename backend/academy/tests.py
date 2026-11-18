@@ -141,6 +141,94 @@ class AuthTests(TestCase):
         with self.assertRaises(ValueError):
             User.objects.create_superuser("invalid@example.com", PASSWORD, is_staff=False)
 
+    def test_admin_can_create_and_delete_users(self):
+        admin_user = User.objects.create_superuser("admin-panel@example.com", PASSWORD, name="Admin Panel")
+        self.client.force_login(admin_user)
+        csrf_token = self.client.get("/api/csrf/").cookies["csrftoken"].value
+
+        response = self.client.get("/api/admin/users/", HTTP_X_CSRFTOKEN=csrf_token)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.json(), list)
+
+        response = self.client.post(
+            "/api/admin/users/",
+            {
+                "email": "new.student@example.com",
+                "name": "New Student",
+                "password": PASSWORD,
+                "is_staff": False,
+                "is_superuser": False,
+                "is_active": True,
+            },
+            format="json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["email"], "new.student@example.com")
+
+        new_user = User.objects.get(email="new.student@example.com")
+        response = self.client.delete(f"/api/admin/users/{new_user.id}/", HTTP_X_CSRFTOKEN=csrf_token)
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(User.objects.filter(pk=new_user.pk).exists())
+
+    def test_admin_can_edit_users_careers_and_labs(self):
+        admin_user = User.objects.create_superuser("admin-editor@example.com", PASSWORD, name="Admin Editor")
+        self.client.force_login(admin_user)
+        csrf_token = self.client.get("/api/csrf/").cookies["csrftoken"].value
+
+        user = User.objects.create_user("editor-student@example.com", PASSWORD, name="Student")
+        response = self.client.patch(
+            f"/api/admin/users/{user.id}/",
+            {"name": "Updated Student", "is_staff": True, "password": "Another-pass-456!"},
+            format="json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.status_code, 200)
+        user.refresh_from_db()
+        self.assertEqual(user.name, "Updated Student")
+        self.assertTrue(user.is_staff)
+
+        career = Career.objects.create(
+            slug="design-ops",
+            title="Design Ops",
+            summary="Design operations",
+            description="Operate product design flows.",
+            category="Product",
+            tools=["Figma"],
+            interests=["Research"],
+            salary="$75k",
+            education="Bachelor",
+            outlook="Strong",
+        )
+        response = self.client.patch(
+            f"/api/admin/careers/{career.id}/",
+            {"title": "Design Systems", "category": "Design", "tools": ["Figma", "Notion"]},
+            format="json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Design Systems")
+        self.assertEqual(response.json()["category"], "Design")
+
+        lab = Lab.objects.create(
+            career=career,
+            title="Discovery Sprint",
+            level=1,
+            scenario="Interview users.",
+            objectives=["Map pain points"],
+            expected_seconds=180,
+        )
+        response = self.client.patch(
+            f"/api/admin/labs/{lab.id}/",
+            {"title": "Discovery Sprint v2", "is_premium": True, "expected_seconds": 240},
+            format="json",
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["title"], "Discovery Sprint v2")
+        self.assertTrue(response.json()["is_premium"])
+        self.assertEqual(response.json()["expected_seconds"], 240)
+
 
 @override_settings(PASSWORD_HASHERS=FAST_PASSWORDS)
 class AcademyTests(TestCase):

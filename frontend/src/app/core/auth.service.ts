@@ -84,3 +84,18 @@ export const authGuard: CanActivateFn = async (_route, state) => {
     return router.createUrlTree(['/login'], {queryParams: {connection: 'failed'}});
   }
 };
+
+export const adminGuard: CanActivateFn = async () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  try {
+    await auth.initialize();
+    const user = auth.user();
+    return user?.is_staff
+      ? true
+      : router.createUrlTree(['/']);
+  } catch (error) {
+    console.error('Admin access check failed:', error);
+    return router.createUrlTree(['/']);
+  }
+};
