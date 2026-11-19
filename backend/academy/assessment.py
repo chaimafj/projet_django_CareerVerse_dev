@@ -15,7 +15,9 @@ def career_assessment(user, career):
     final_score = mean.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP) if mean is not None else None
     needs_improvement = final_score is not None and final_score < Decimal("60")
     completed_courses = set(
-        CourseCompletion.objects.filter(user=user, course__career=career).values_list("course_id", flat=True)
+        CourseCompletion.objects.filter(
+            user=user, course__career=career, status=CourseCompletion.Status.COMPLETED
+        ).values_list("course_id", flat=True)
     ) if user.is_authenticated else set()
     courses = {course.lab_id: course for course in Course.objects.filter(lab__in=labs)}
     path = []

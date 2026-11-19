@@ -31,7 +31,7 @@ import { NotificationCountService } from './core/notification-count.service';
               {{ (dark() ? 'Light theme' : 'Dark theme') | t }}
             </button>
             @if (auth.user(); as user) {
-              @if (user.is_staff) {
+              @if (user.role === 'admin') {
                 <a routerLink="/admin" class="admin-pill" [attr.aria-label]="('Administration' | t) + ' · ' + ('Admin connected' | t)">
                   <app-icon name="shield" /> {{ 'Admin' | t }}
                 </a>
@@ -55,7 +55,7 @@ import { NotificationCountService } from './core/notification-count.service';
             <a routerLink="/profile" routerLinkActive="active"><app-icon name="user" /> {{ 'My profile' | t }}</a>
             <a routerLink="/notifications" routerLinkActive="active"><app-icon name="bell" />{{ 'Notifications' | t }}@if (!notificationCount.error() && notificationCount.unread() > 0) { <span class="nav-notification-count">{{ notificationCount.unread() }}</span> }</a>
             <a routerLink="/premium" routerLinkActive="active"><app-icon name="crown" />{{ 'Premium' | t }}</a>
-            @if (auth.user()?.is_staff) {
+            @if (auth.user()?.role === 'admin') {
               <a routerLink="/admin" routerLinkActive="active"><app-icon name="shield" /> {{ 'Administration' | t }}</a>
             }
             <div class="sidebar-note"><span class="eyebrow">{{ 'SMALL STEPS. BIG FUTURE.' | t }}</span><p>{{ 'Learn a skill. Try a career. Find what feels right.' | t }}</p></div>

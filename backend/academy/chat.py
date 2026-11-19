@@ -49,7 +49,9 @@ def career_reply(user, message):
             actions.append({"label": "Explore careers", "path": "/careers"})
     elif matched:
         descriptions = []
-        completed = set(CourseCompletion.objects.filter(user=user).values_list("course_id", flat=True))
+        completed = set(CourseCompletion.objects.filter(
+            user=user, status=CourseCompletion.Status.COMPLETED
+        ).values_list("course_id", flat=True))
         for career in matched[:3]:
             descriptions.append(
                 f"{career.title}\n{career.summary}\n"

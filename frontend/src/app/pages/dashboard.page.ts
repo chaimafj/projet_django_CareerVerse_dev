@@ -19,6 +19,23 @@ import { CareerCarouselComponent } from '../widgets/career-carousel.component';
     @if (error()) { <div class="error" role="alert">{{ (error()) | t }} <button (click)="load()">{{ 'Retry' | t }}</button></div> }
     @if (loading()) { <div class="loading"><ion-spinner /><span>{{ 'Loading your journey...' | t }}</span></div> }
     @if (progress(); as p) {
+      <div class="search-panel">
+        <label>{{ 'Dashboard period' | t }}
+          <select [value]="period()" (change)="period.set($any($event.target).value); load()">
+            <option value="">{{ 'All time' | t }}</option>
+            <option value="7">{{ 'Last 7 days' | t }}</option>
+            <option value="30">{{ 'Last 30 days' | t }}</option>
+          </select>
+        </label>
+        <label>{{ 'Dashboard career' | t }}
+          <select [value]="career()" (change)="career.set($any($event.target).value); load()">
+            <option value="">{{ 'All careers' | t }}</option>
+            @for (match of matches(); track match.career_slug) {
+              <option [value]="match.career_slug">{{ match.career_title | t }}</option>
+            }
+          </select>
+        </label>
+      </div>
       <section class="overview-banner">
         <div class="banner-orbit" aria-hidden="true"></div>
         <div class="overview-banner-copy">
@@ -66,11 +83,19 @@ export class DashboardPage implements OnInit {
   readonly matches = signal<Match[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
+  readonly period = signal('');
+  readonly career = signal('');
   ngOnInit() { void this.load(); }
   async load() {
     this.loading.set(true); this.error.set('');
     try {
-      const [progress, matches] = await Promise.all([this.api.progress(), this.api.recommendations()]);
+      const since = this.period()
+        ? new Date(Date.now() - Number(this.period()) * 86400000).toISOString().slice(0, 10)
+        : undefined;
+      const [progress, matches] = await Promise.all([
+        this.api.progress({since, career: this.career() || undefined}),
+        this.api.recommendations(),
+      ]);
       this.progress.set(progress); this.matches.set(matches);
     } catch (error) { this.error.set(errorMessage(error)); }
     finally { this.loading.set(false); }

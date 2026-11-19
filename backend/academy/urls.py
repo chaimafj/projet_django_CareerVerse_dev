@@ -1,6 +1,8 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from . import views
+from .admin_views import AdminCourseViewSet, AdminOptionViewSet, AdminQuestionViewSet
 from .chat_views import ChatView
 from .profile_photo import ProfilePhotoView
 from .auth_extra import GoogleConfigView, GoogleLoginView, PasswordResetConfirmView, PasswordResetRequestView
@@ -8,6 +10,11 @@ from .billing import BillingStatusView, CheckoutView, ConfirmCheckoutView, webho
 from .push import (
     NotificationCountView, NotificationListView, NotificationReadView, PushConfigView, PushTestView, SubscriptionView,
 )
+
+admin_router = DefaultRouter()
+admin_router.register(r"admin/courses", AdminCourseViewSet, basename="admin-course")
+admin_router.register(r"admin/questions", AdminQuestionViewSet, basename="admin-question")
+admin_router.register(r"admin/options", AdminOptionViewSet, basename="admin-option")
 
 urlpatterns = [
     path("billing/status/", BillingStatusView.as_view()),
@@ -44,6 +51,7 @@ urlpatterns = [
     path("courses/<int:pk>/", views.CourseView.as_view()),
     path("courses/", views.CourseListView.as_view()),
     path("courses/<int:pk>/complete/", views.CompleteCourseView.as_view()),
+    path("courses/<int:pk>/start/", views.StartCourseView.as_view()),
     path("labs/<int:pk>/start/", views.StartLabView.as_view()),
     path("labs/<int:pk>/", views.LabDetailView.as_view()),
     path("labs/", views.LabListView.as_view()),
@@ -51,4 +59,7 @@ urlpatterns = [
     path("results/<int:pk>/", views.ResultView.as_view()),
     path("progress/", views.ProgressView.as_view()),
     path("recommendations/", views.RecommendationsView.as_view()),
+    path("admin/audit/", views.AdminAuditLogView.as_view()),
 ]
+
+urlpatterns += admin_router.urls

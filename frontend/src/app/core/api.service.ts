@@ -28,13 +28,19 @@ export class ApiService {
   assessments() { return this.get<CareerAssessment[]>('career-assessments/'); }
   assessment(slug: string) { return this.get<CareerAssessment>(`careers/${encodeURIComponent(slug)}/assessment/`); }
   completeCourse(id: number) { return this.post<unknown>(`courses/${id}/complete/`); }
+  startCourse(id: number) { return this.post<Course>(`courses/${id}/start/`); }
   startLab(id: number) { return this.post<Attempt>(`labs/${id}/start/`); }
   lab(id: number) { return this.get<LabDetail>(`labs/${id}/`); }
   submit(id: number, answers: {question_id: number; option_ids: number[]; code_text?: string}[]) {
     return this.post<Result>(`attempts/${id}/submit/`, { answers });
   }
   result(id: number) { return this.get<Result>(`results/${id}/`); }
-  progress() { return this.get<Progress>('progress/'); }
+  progress(params: {since?: string; career?: string} = {}) {
+    const query = new URLSearchParams(
+      Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1]))
+    );
+    return this.get<Progress>(`progress/${query.size ? `?${query}` : ''}`);
+  }
   recommendations() { return this.get<Match[]>('recommendations/'); }
   chatHistory() { return this.get<ChatExchange[]>('chat/'); }
   sendChat(message: string) { return this.post<ChatExchange>('chat/', {message}); }

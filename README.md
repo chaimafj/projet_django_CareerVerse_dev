@@ -192,6 +192,13 @@ backend/
 See [the backend README](backend/README.md) for the exact API and environment
 configuration.
 
+## Conformité ISO/IEC 25010
+
+- [Rapport de conformité et architecture](docs/ISO25010.md)
+- [Matrice de traçabilité](docs/TRACEABILITY.md)
+- [Résultats et exécution des tests](docs/TEST-EXECUTION.md)
+- [Installation reproductible](docs/INSTALLATION.md)
+
 ### PostgreSQL
 
 SQLite requires no extra configuration. To use an existing PostgreSQL database,

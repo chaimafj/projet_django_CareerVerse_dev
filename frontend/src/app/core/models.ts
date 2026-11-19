@@ -7,6 +7,7 @@ export interface User {
   specialty: string;
   study_level: string;
   bio: string;
+  role: 'student' | 'editor' | 'admin';
   is_staff: boolean;
   is_superuser?: boolean;
   photo_url: string | null;
@@ -96,6 +97,7 @@ export interface Course {
   lab_id: number;
   lessons: {title: string; body: string; example: string}[];
   completed: boolean;
+  progress_status?: 'in_progress' | 'completed';
 }
 
 export interface Question {

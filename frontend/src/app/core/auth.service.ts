@@ -91,7 +91,7 @@ export const adminGuard: CanActivateFn = async () => {
   try {
     await auth.initialize();
     const user = auth.user();
-    return user?.is_staff
+    return user?.role === 'admin'
       ? true
       : router.createUrlTree(['/']);
   } catch (error) {

@@ -25,9 +25,15 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
+    class Role(models.TextChoices):
+        STUDENT = "student", "Student"
+        EDITOR = "editor", "Content editor"
+        ADMIN = "admin", "Administrator"
+
     username = None
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=150)
+    role = models.CharField(max_length=16, choices=Role.choices, default=Role.STUDENT)
     interests = models.JSONField(default=list, blank=True)
     university = models.CharField(max_length=200, blank=True)
     specialty = models.CharField(max_length=200, blank=True)
@@ -46,6 +52,11 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         self.email = self.email.strip().lower()
+        self.is_staff = self.role in (self.Role.EDITOR, self.Role.ADMIN) or self.is_superuser
+        if self.role == self.Role.ADMIN:
+            self.is_staff = True
+        if self.is_superuser:
+            self.role = self.Role.ADMIN
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -210,17 +221,31 @@ class Option(models.Model):
 
 
 class CourseCompletion(models.Model):
+    class Status(models.TextChoices):
+        IN_PROGRESS = "in_progress", "In progress"
+        COMPLETED = "completed", "Completed"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_completions")
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="completions")
-    completed_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.COMPLETED)
+    started_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["user", "course"], name="unique_course_completion")
         ]
 
+    def save(self, *args, **kwargs):
+        if self.status == self.Status.COMPLETED and self.completed_at is None:
+            from django.utils import timezone
+
+            self.completed_at = timezone.now()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.user}: {self.course}"
+        return f"{self.user}: {self.course} ({self.status})"
 
 
 class Attempt(models.Model):
@@ -316,3 +341,17 @@ class PushDelivery(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["notification", "subscription"], name="unique_push_delivery")
         ]
+
+
+class AuditLog(models.Model):
+    actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="audit_events")
+    action = models.CharField(max_length=100)
+    object_type = models.CharField(max_length=100)
+    object_id = models.CharField(max_length=100, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    path = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]

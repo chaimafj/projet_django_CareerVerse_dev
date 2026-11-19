@@ -2,7 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
-from .models import Career, Course, Result, User
+from .models import Career, Course, Lab, Option, Question, Result, User
 
 
 class StrictSerializer(serializers.Serializer):
@@ -39,9 +39,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             "id", "email", "name", "interests", "university", "specialty",
-            "study_level", "bio", "is_staff", "is_superuser", "photo_url",
+            "study_level", "bio", "role", "is_staff", "is_superuser", "photo_url",
         ]
-        read_only_fields = ["id", "email", "is_staff", "is_superuser", "photo_url"]
+        read_only_fields = ["id", "email", "role", "is_staff", "is_superuser", "photo_url"]
         extra_kwargs = {"name": {"allow_blank": False}}
 
     def to_internal_value(self, data):
@@ -134,3 +134,28 @@ class ResultSerializer(serializers.ModelSerializer):
             "id", "career_title", "career_slug", "lab_title", "correct", "total",
             "score", "time_score", "duration_seconds", "passed", "skills", "feedback", "lab_id",
         ]
+
+
+class AdminCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ["id", "career", "lab", "title", "intro", "lessons"]
+
+    def validate(self, attrs):
+        career = attrs.get("career", getattr(self.instance, "career", None))
+        lab = attrs.get("lab", getattr(self.instance, "lab", None))
+        if career and lab and career.pk != lab.career_id:
+            raise serializers.ValidationError({"lab": "The course and lab must belong to the same career."})
+        return attrs
+
+
+class AdminQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ["id", "lab", "position", "prompt", "multiple", "explanation", "skill", "kind", "workspace"]
+
+
+class AdminOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Option
+        fields = ["id", "question", "position", "text", "correct"]

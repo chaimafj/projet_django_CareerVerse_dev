@@ -1,0 +1,62 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: careerverse
+      POSTGRES_USER: careerverse
+      POSTGRES_PASSWORD: careerverse-local
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careerverse -d careerverse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: "local-compose-only-change-before-deployment"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
+      DATABASE_URL: "postgresql://careerverse:careerverse-local@database:5432/careerverse"
+      WEB_APP_ORIGIN: "http://localhost:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_demo &&
+             python manage.py seed_extended &&
+             python manage.py seed_premium &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --access-logfile -"
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  push-worker:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: "local-compose-only-change-before-deployment"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
+      DATABASE_URL: "postgresql://careerverse:careerverse-local@database:5432/careerverse"
+      WEB_APP_ORIGIN: "http://localhost:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: sh -c "while true; do python manage.py send_push_notifications || true; sleep 60; done"
+
+volumes:
+  postgres-data:

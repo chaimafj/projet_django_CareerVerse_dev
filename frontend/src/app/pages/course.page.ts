@@ -42,7 +42,14 @@ export class CoursePage implements OnInit {
   ngOnInit() { void this.load(); }
   async load() {
     this.loading.set(true); this.error.set('');
-    try { this.course.set(await this.api.course(Number(this.route.snapshot.paramMap.get('id')))); }
+    try {
+      const course = await this.api.course(Number(this.route.snapshot.paramMap.get('id')));
+      if (!course.completed && typeof this.api.startCourse === 'function') {
+        await this.api.startCourse(course.id);
+        course.progress_status = 'in_progress';
+      }
+      this.course.set(course);
+    }
     catch (error) { this.error.set(errorMessage(error)); }
     finally { this.loading.set(false); }
   }

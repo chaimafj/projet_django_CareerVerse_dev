@@ -15,7 +15,7 @@ PASSWORD = "Unusual-passphrase-932!"
 FAST_PASSWORDS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 PROFILE_FIELDS = {
     "id", "email", "name", "interests", "university", "specialty", "study_level",
-    "bio", "is_staff", "is_superuser", "photo_url",
+    "bio", "role", "is_staff", "is_superuser", "photo_url",
 }
 RESULT_FIELDS = {
     "id", "career_title", "career_slug", "lab_title", "correct", "total", "score",

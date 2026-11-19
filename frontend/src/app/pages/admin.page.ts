@@ -23,12 +23,13 @@ type AdminModule = {
   summary: string;
 };
 
-type AdminUserRow = Pick<User, 'id' | 'email' | 'name' | 'is_staff' | 'is_superuser'> & { is_active: boolean };
+type AdminUserRow = Pick<User, 'id' | 'email' | 'name' | 'role' | 'is_staff' | 'is_superuser'> & { is_active: boolean };
 
 type AdminUserDraft = {
   email: string;
   name: string;
   password: string;
+  role: User['role'];
   is_staff: boolean;
   is_superuser: boolean;
   is_active: boolean;
@@ -131,7 +132,7 @@ type AdminLabDraft = {
 
           @if (loading()) {
             <div class="data-panel loading-panel">
-              <p>Chargement des données admin…</p>
+              <p>{{ 'Loading admin data...' | t }}</p>
             </div>
           } @else if (loadError()) {
             <div class="data-panel error-panel">
@@ -166,6 +167,14 @@ type AdminLabDraft = {
                         </label>
                         <div class="toggle-row">
                           <label class="toggle-box">
+                            <span>Rôle</span>
+                            <select [value]="userDraft().role" (change)="updateUserDraft('role', $any($event.target).value)">
+                              <option value="student">Étudiant</option>
+                              <option value="editor">Éditeur de contenu</option>
+                              <option value="admin">Administrateur</option>
+                            </select>
+                          </label>
+                          <label class="toggle-box">
                             <input type="checkbox" [checked]="userDraft().is_staff" (change)="updateUserDraft('is_staff', $any($event.target).checked)" />
                             <span>Staff</span>
                           </label>
@@ -197,7 +206,7 @@ type AdminLabDraft = {
                         <tr>
                           <th>Email</th>
                           <th>Nom</th>
-                          <th>Staff</th>
+                          <th>Rôle</th>
                           <th>Superuser</th>
                           <th>Actif</th>
                           <th>Actions</th>
@@ -208,7 +217,7 @@ type AdminLabDraft = {
                           <tr>
                             <td>{{ user.email }}</td>
                             <td>{{ user.name || '—' }}</td>
-                            <td><span class="status-pill" [class.enabled]="user.is_staff">{{ user.is_staff ? 'Oui' : 'Non' }}</span></td>
+                            <td>{{ user.role }}</td>
                             <td><span class="status-pill" [class.enabled]="user.is_superuser">{{ user.is_superuser ? 'Oui' : 'Non' }}</span></td>
                             <td><span class="status-pill" [class.enabled]="user.is_active">{{ user.is_active ? 'Oui' : 'Non' }}</span></td>
                             <td class="table-actions">
@@ -489,6 +498,7 @@ export class AdminPage {
     email: '',
     name: '',
     password: '',
+    role: 'student',
     is_staff: false,
     is_superuser: false,
     is_active: true,
@@ -586,13 +596,14 @@ export class AdminPage {
         email: user.email,
         name: user.name,
         password: '',
+        role: user.role,
         is_staff: user.is_staff,
         is_superuser: user.is_superuser ?? false,
         is_active: user.is_active,
       });
     } else {
       this.editingUserId.set(null);
-      this.userDraft.set({ email: '', name: '', password: '', is_staff: false, is_superuser: false, is_active: true });
+      this.userDraft.set({ email: '', name: '', password: '', role: 'student', is_staff: false, is_superuser: false, is_active: true });
     }
     this.userFormOpen.set(true);
   }
@@ -684,6 +695,7 @@ export class AdminPage {
         email: draft.email.trim(),
         name: draft.name.trim(),
         password: draft.password,
+        role: draft.role,
         is_staff: draft.is_staff,
         is_superuser: draft.is_superuser,
         is_active: draft.is_active,

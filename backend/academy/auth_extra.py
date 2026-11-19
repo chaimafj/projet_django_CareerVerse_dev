@@ -26,6 +26,7 @@ from rest_framework.views import APIView
 
 from .models import GoogleIdentity, User
 from .push import welcome_once
+from .audit import audit
 from .serializers import ProfileSerializer, StrictSerializer
 from .views import welcome_language
 
@@ -208,4 +209,5 @@ class GoogleLoginView(APIView):
         request.session.pop("google_nonce", None)
         request.session.pop("google_nonce_at", None)
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+        audit(request, "auth.google_logged_in", user)
         return Response(ProfileSerializer(user).data)

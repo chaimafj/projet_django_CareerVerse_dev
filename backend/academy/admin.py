@@ -1,18 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import Attempt, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
+from .models import AuditLog, Attempt, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
 
 
 @admin.register(User)
 class StudentAdmin(UserAdmin):
     ordering = ["email"]
-    list_display = ["email", "name", "is_staff", "is_active"]
+    list_display = ["email", "name", "role", "is_active"]
     search_fields = ["email", "name"]
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         ("Profile", {"fields": ("name", "interests", "university", "specialty", "study_level", "bio")}),
-        ("Permissions", {"fields": ("is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
+        ("Permissions", {"fields": ("role", "is_active", "is_staff", "is_superuser", "groups", "user_permissions")}),
         ("Dates", {"fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = ((None, {"classes": ("wide",), "fields": ("email", "name", "password1", "password2")}),)
@@ -108,3 +108,10 @@ class ResultAdmin(HistoricalAdmin):
     list_display = ["id", "career_title", "lab_title", "score", "passed", "completed_at"]
     list_filter = ["career_slug", "passed"]
     search_fields = ["attempt__user__email", "lab_title"]
+
+
+@admin.register(AuditLog)
+class AuditLogAdmin(HistoricalAdmin):
+    list_display = ["created_at", "actor", "action", "object_type", "object_id", "ip_address"]
+    list_filter = ["action", "object_type", "created_at"]
+    search_fields = ["actor__email", "action", "object_id", "path"]

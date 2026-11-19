@@ -5,25 +5,31 @@
   "scripts": {
     "start": "ng serve --host 127.0.0.1 --proxy-config proxy.conf.json",
     "build": "ng build",
+    "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "node tools/verify-locales.mjs && node tools/verify-integrations.mjs"
   },
   "dependencies": {
-    "@angular/common": "^20.3.0",
-    "@angular/compiler": "^20.3.0",
-    "@angular/core": "^20.3.0",
-    "@angular/forms": "^20.3.0",
-    "@angular/platform-browser": "^20.3.0",
-    "@angular/router": "^20.3.0",
-    "@ionic/angular": "^8.7.0",
+    "@angular/common": "20.3.35",
+    "@angular/compiler": "20.3.35",
+    "@angular/core": "20.3.35",
+    "@angular/forms": "20.3.35",
+    "@angular/platform-browser": "20.3.35",
+    "@angular/router": "20.3.35",
+    "@ionic/angular": "8.8.19",
     "ionicons": "^8.0.0",
     "rxjs": "~7.8.2",
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
-    "@angular/build": "^20.3.0",
-    "@angular/cli": "^20.3.0",
-    "@angular/compiler-cli": "^20.3.0",
+    "@playwright/test": "^1.56.1",
+    "@angular/build": "20.3.43",
+    "@angular/cli": "20.3.43",
+    "@angular/compiler-cli": "20.3.35",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "glob": "14.0.6",
+    "minimatch": "11.0.9"
   }
 }
