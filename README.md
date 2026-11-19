@@ -44,7 +44,7 @@ Production requires your own `DJANGO_SECRET_KEY` and `DJANGO_DEBUG=0`.
 
 The frontend dev server proxies `/api/`, `/admin/` and `/static/` to Django.
 Use the frontend origin for student requests so Django session and CSRF cookies
-work together. Do not switch between `localhost` and `127.0.0.1` mid-session.
+work together. Do not switch between `localhost` and `127.0.0.1` mid-session...
 
 ### Administration
 
