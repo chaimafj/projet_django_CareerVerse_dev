@@ -3,123 +3,6 @@
 A separate web implementation of CareerVerse, using **Ionic 8 + Angular 20**
 for the frontend and **Django + Django REST Framework** for the API. 
 
-## Implemented scope
-
-- Email registration/login/logout with Django sessions and CSRF protection.
-- Editable student profile and canonical interest choices.
-- Custom interests can be added alongside catalogue choices (30 selected maximum,
-  100 characters each). Save profile also includes a pending custom entry; saved
-  interests appear in the profile header and persist after reload. Canonical values
-  remain trimmed/lowercase; custom interests match recommendations only when they
-  overlap the catalogue's interest labels.
-- Profile dashboard with personal details, interests, course/lab progress,
-  career assessments and Premium expiry. Private profile photos support upload,
-  replacement and removal (JPEG/PNG/WebP, max 5 MB and 16 megapixels).
-  Pillow re-encodes images to JPEG, strips metadata and bounds dimensions to 512px.
-  Photos are stored in the user's database record and served only through the
-  authenticated `/api/me/photo/` endpoint, not a public media directory.
-- Searchable career catalogue with category filters and detailed career pages.
-  The catalogue uses three cards per row on desktop, two on tablet and one on
-  mobile, with larger card titles (26px), descriptions (18px) and tool labels (15px)
-  at the default browser text size.
-- Larger, browser-scalable typography throughout the app: 18px base body text,
-  16px form inputs/buttons and 14–15px secondary labels at the default root size.
-  Overview, carousel captions and mobile navigation use the same enlarged scale.
-- Courses with practical examples and persisted completion.
-- Separate **Courses** and **Labs** navigation/catalogue pages. Finishing a course
-  saves completion and stays on that course; it never starts or redirects to a lab.
-  Career details also display courses and labs in separate sections. The existing
-  preparation-course/lab relationship and Premium access rules remain unchanged.
-  Both catalogues group their content into separate career sections, preserving
-  order, completion status and Premium badges. Labs also retain correction links.
-- Nine free beginner/intermediate/advanced labs with mission briefings and objectives.
-- Nine Premium simulations with five interactive tasks each, preparation courses,
-  answer review navigation and detailed correction (selected versus expected choices).
-- Server-side correction, timing, per-skill scores and immutable attempt snapshots.
-- Persisted results, attempt history and best-attempt progress.
-- Completed-lab badges with latest score and correction links on each learning path.
-  Lab briefings list all your submitted attempts; retaking creates a separate result
-  without deleting history. Result pages can show only mistakes and link back to retake.
-  Completed means submitted, not necessarily passed.
-- Explainable career recommendations: 75% performance + 25% interest fit
-  when tested; 60% interest fit otherwise.
-- Career final assessment after all three free labs: equally weighted mean of
-  each lab's best score, rounded to two decimal places. Premium is optional.
-  Below 60%, an improvement path prioritizes weak labs/skills, links corrections
-  and preparation courses, and offers retakes. At exactly 60%, the warning is not
-  shown. The current assessment appears on results, career details and Labs.
-  This educational threshold is separate from each lab's 70% pass threshold.
-- Responsive Ionic UI, persistent light/dark theme, explicit loading/error/empty states.
-- Refreshed welcome and dashboard with local SVG career illustrations, animated
-  cards and learning shortcuts. The shared illustration carousel rotates every
-  6.5 seconds, with previous/next, direct selection and play/pause controls.
-  Hover pauses rotation; keyboard focus or manual selection pauses until Play.
-  Hidden tabs do not advance. Reduced-motion users start with autoplay disabled;
-  motion effects are disabled. Controls and captions support FR/EN/AR and RTL.
-  Overview has its own immersive banner and original isometric workstation,
-  cloud infrastructure and security-vault SVG scenes, also used on career-match
-  cards. Staggered card entrances, floating scene layers and animated data paths
-  respect reduced motion; the welcome page keeps its existing illustrations.
-- Django administration for staff users to manage the catalogue and accounts.
-- Local career chatbot with catalogue/course links, personal results explanations,
-  interest guidance, limited career follow-up context and private saved history.
-- FR/EN/AR interface, persistent language selector, Arabic RTL and localized dates.
-- Private notification inbox, browser Web Push subscription and push delivery worker.
-- Stripe test-mode Checkout with signed webhook verification for 30-day Premium access.
-
-Seed content includes Angular development, cloud engineering and cybersecurity.
-Run `seed_extended` to also add DevOps Engineer, Machine Learning Engineer,
-Deep Learning Engineer, AI Engineer, Data Scientist and Full-Stack Developer.
-Each additional path includes three free courses (three illustrated-by-example
-lessons each) and three scenario quizzes, with three questions per quiz.
-The expanded catalogue has nine careers, 27 free labs/courses and nine Premium
-simulations/courses (36 labs/courses total, 126 questions/tasks including Premium).
-The extension is idempotent, does not reset the original catalogue and preserves
-users, course completions, attempt snapshots and historical results. Run it again
-to refresh only these six paths. New interests, categories, recommendations and
-chat suggestions use the catalogue automatically. Lessons and quiz content remain
-in English; career titles, summaries, categories and interests support FR/EN/AR.
-The nine original labs remain free. Active Premium unlocks **Launch-day checkout
-rescue** (Angular), **Restore service under pressure** (Cloud) and **Investigate
-a suspicious account** (Cybersecurity). Each capstone has a ten-minute recommended
-duration. Django checks entitlement before opening its course, completing it or
-starting the lab; a public catalogue preview does not expose lesson content or answers.
-An attempt started while Premium is active can still be submitted after expiry,
-and its owner's historical results remain readable. Progress counts all seeded labs
-(36 with the extended catalogue and Premium simulations).
-Premium formats are distinct from free quizzes:
-- Angular: repair code and sequence a guarded release.
-- Cloud: complete architecture diagrams and build a recovery drill.
-- Cybersecurity: inspect evidence, repair owner checks and sequence trusted recovery.
-- DevOps: assemble a pipeline, configure a rollout and inspect canary telemetry.
-- Machine Learning: repair preprocessing, calculate recall and order model promotion.
-- Deep Learning: repair a training step, inspect overfitting and validate compression.
-- AI: build grounded retrieval, review access boundaries and control tool execution.
-- Data Science: repair SQL, audit an experiment and build a reproducible report.
-- Full-Stack: repair ownership/idempotency, protect reservations and plan compatible delivery.
-
-Workflow tasks use an available-stage bank and an ordered execution canvas with
-keyboard-accessible add, remove and move-up/down buttons. Every stage must be placed
-before submission. The expected order stays server-side until correction; grading
-compares the actual submitted order, not just selected membership. Each simulation
-has five preparation lessons and five tasks, with at least two interaction formats.
-
-Scoring is unchanged: task accuracy contributes 80%, server-measured
-timing contributes 20%, and the pass threshold is 70/100. Content is educational
-workshop work, not an executable cloud or cybersecurity sandbox. Code tasks compare
-the requested exact fragment after trimming leading/trailing whitespace; they do not
-compile or execute arbitrary code or claim to accept every equivalent implementation.
-Diagrams are simplified flow models, not drag-and-drop infrastructure deployment.
-Corrections preserve the workspace and show the repaired code or expected architecture
-flow. Apply migrations (including `0010` for workflow tasks), run `seed_extended`
-then `seed_premium` for all nine simulations. Re-seeding retains old attempt snapshots.
-Without the extension, `seed_premium` still installs the original three and explicitly
-reports which extended careers are missing.
-
-This initial web version does **not** yet include Google login, password-reset
-email UI, translated educational catalogue content, ESCO search,
-generative AI, advertising or an offline/PWA installation workflow. These are
-not represented by placeholder buttons or fake successful actions.
 
 ## Prerequisites
 
@@ -226,22 +109,6 @@ set `POSTGRES_SSLMODE` according to your provider's requirements.
 6. Submission is final; the result cannot be rewritten by another submission.
 7. Feedback and explanations are returned after grading.
 
-Default score:
-
-```text
-accuracy = correct / total * 100
-time score = 100 within expected time
-time score = max(0, min(100, 100 * (2 - elapsed / expected))) otherwise
-overall = round(0.8 * accuracy + 0.2 * time score, 2)
-passed = overall >= 70
-```
-
-Elapsed time is measured at the server, not trusted from browser input.
-This is an educational quiz app, not a proctored exam platform.
-Leaving or refreshing an unfinished quiz discards the current browser selections.
-The server retains the unfinished attempt, which is not counted as a completion.
-Finishing an attempt counts as completed even when its score is below the pass mark.
-
 ## Notifications interface
 
 The signed-in header includes a bell with a red badge for the exact unread count;
@@ -309,75 +176,6 @@ delivery or payment when credentials are missing. See
 [backend setup](backend/README.md) for VAPID keys, the push delivery worker, test
 Stripe credentials/price and Stripe CLI webhook forwarding.
 
-### Password recovery and Google
-
-The login page includes **Forgot your password?**, localized request/reset forms
-and a **Continue with Google** integration. Enter your email on the login page
-before clicking password recovery; no password is required. An empty or invalid
-email shows guidance without sending a request. After the API accepts the request,
-the page displays the entered email and inbox guidance. Responses do not reveal
-whether an account exists. Password recovery uses real SMTP by default, including
-in development; configure a provider such as Brevo first. Missing configuration
-or delivery failures display an error, not a successful-send message.
-Google is disabled with an explanation until `GOOGLE_CLIENT_ID` is configured;
-it is not a simulated login. See the backend README for SMTP/OAuth setup.
-Existing email/password accounts are not automatically merged with Google accounts.
-
-### Visual design and accessibility
-
-The interface combines professional cards, blue/violet gradients and playful
-original SVG illustrations (launch, code, Cloud, security and Premium).
-Navigation uses consistent decorative icons; the dashboard, sign-in and Premium
-pages feature gently animated artwork. Career cards remain static by default.
-All artwork is bundled locally: no remote images, tracking or new dependencies.
-Responsive layouts preserve light/dark themes and Arabic RTL. Page transitions,
-hover effects and illustration animations respect `prefers-reduced-motion`.
-Icons and illustrations are decorative; text labels remain available to assistive technology.
-
-First-time sign-in creates a single welcome message in the UI language (FR/EN/AR),
-including the automatic sign-in after registration. It is not recreated after
-deletion or subsequent logins; previously signed-in accounts are not welcomed retroactively.
-
-Clicking a notification card marks it as read. **Explore** saves its read status
-before navigating; failed saves retain the unread state and display an error.
-
-The **Notifications** page focuses on the private inbox, with all/unread filters,
-read status and a single **Delete all** button with confirmation. It deletes all
-the user's read and unread notifications, including those outside the latest 50
-shown in the inbox. The Push configuration
-and test panel has been removed from this page; existing browser subscriptions
-remain active, but this page no longer offers new subscription setup. Notifications are queued after
-lab submission and can be delivered by the worker while the page is closed.
-Browser/OS background support is required; production must use HTTPS. Disabling
-push or signing out removes this browser's subscription to avoid cross-account
-notifications. Other registered devices are unaffected.
-
-**Premium** opens Stripe's hosted test-mode Checkout. Only the server's verified
-paid webhook or authenticated server-to-Stripe return verification activates or
-extends access; the return URL alone never grants it.
-After successful Checkout return, the page checks server status up to ten times
-over about 30 seconds, then offers a manual refresh if confirmation is pending.
-The fixed offer is **EUR 4.99 for 30 days** in Stripe **test mode** (no real charge).
-Active members can buy another 30 days, added to their current expiry. They
-see a dedicated Premium dashboard with a member badge, verified expiry,
-course/simulation shortcuts and progress access. Renewal is available in the
-expandable access-management section rather than the initial purchase offer.
-This interface uses server-confirmed entitlement only, never the return URL or
-offline payment history. Reduced-motion preferences disable its entrance animation.
-Successful returns include a Checkout session ID: polling confirms that specific purchase,
-even when Premium is already active. While polling, payment is disabled to
-discourage duplicates. Pending purchases are checked directly with Stripe on
-return, so a stopped local webhook listener does not prevent activation after
-Stripe confirms a matching paid purchase. Both paths share the same atomic,
-idempotent grant operation. Cancelled returns never show payment success. This is a
-one-off purchase, not an automatically recurring subscription.
-Only confirmed payments appear in the account's Django history, with a separate
-IndexedDB copy per account for offline viewing in the same browser. Cached
-history never grants access, and storage/network failures are shown explicitly.
-An authenticated app session is still required; offline history is not an
-offline sign-in or a way to open protected courses/labs.
-All 27 standard labs remain free; the nine advanced simulations require Premium.
-
 ### Local integration configuration (PowerShell)
 
 From the backend directory, generate your own VAPID pair into an ignored file:
@@ -439,16 +237,3 @@ npm run typecheck
 npm run build
 npm test
 ```
-
-## Production checklist
-
-Local development settings are not a production deployment.
-Configure an environment-provided secret key, disable DEBUG, use HTTPS,
-configure hosts and secure cookies, migrate PostgreSQL, serve the built Ionic
-frontend and API on the same origin, collect/serve Django static files, configure
-backups and add operational rate limiting and monitoring. Do not commit `.env`,
-local databases, virtual environments or user data.
-
-Ionic is used as a web UI framework; no Capacitor native mobile project is
-generated here. SQLite does not replace PostgreSQL in the proposed production
-architecture, but makes a local checkout immediately runnable.
