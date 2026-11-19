@@ -220,11 +220,6 @@ For Stripe test events, with the Stripe CLI installed and authenticated:
 stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded --forward-to http://127.0.0.1:8000/api/billing/webhook/
 ```
 
-Use the signing secret from this listener in your local server environment,
-then restart Django. No VAPID or Stripe credentials are supplied by the
-repository. Never commit the local settings or key file. Tests mock providers;
-they do not prove real payment or browser delivery.
-
 ## Validate
 
 ```powershell
