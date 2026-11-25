@@ -19,9 +19,18 @@ import { Course } from '../core/models';
       @if (c.lessons[page()]; as lesson) {
         <article class="panel lesson-panel"><span class="eyebrow">{{ 'LESSON' | t }} {{ (page() + 1) | t }}</span><h2>{{ (lesson.title) | t }}</h2><p class="body-copy">{{ (lesson.body) | t }}</p>@if (lesson.example) { <h3>{{ 'In practice' | t }}</h3><pre><code>{{ (lesson.example) | t }}</code></pre> }</article>
       }
-      <div class="page-actions"><ion-button fill="outline" [disabled]="page() === 0 || saving()" (click)="page.set(page() - 1)">{{ 'Previous' | t }}</ion-button>
-        @if (page() < c.lessons.length - 1) { <ion-button (click)="page.set(page() + 1)">{{ 'Next lesson →' | t }}</ion-button> }
-        @else { <ion-button [disabled]="saving() || c.completed" (click)="finish()">@if (saving()) { <ion-spinner name="dots" /> } @else { {{ (c.completed ? 'Course completed' : 'Finish course') | t }} } </ion-button> }
+      <div class="page-actions simulation-page-actions">
+        <button type="button" class="simulation-secondary-action" [disabled]="page() === 0 || saving()" (click)="page.set(page() - 1)">← {{ 'Previous' | t }}</button>
+        @if (page() < c.lessons.length - 1) {
+          <button type="button" class="simulation-action" [disabled]="saving()" (click)="page.set(page() + 1)">{{ 'Next lesson →' | t }}</button>
+        } @else {
+          <button type="button" class="simulation-action" [disabled]="saving() || c.completed" (click)="finish()">
+            @if (saving()) { <ion-spinner name="dots" /> } @else {
+              <span>{{ (c.completed ? 'Course completed' : 'Finish course') | t }}</span>
+              <span class="simulation-action-arrow" aria-hidden="true">{{ c.completed ? '✓' : '→' }}</span>
+            }
+          </button>
+        }
       </div>
       @if (c.completed) {
         <div class="lab-completion" role="status"><span class="pill success">{{ 'Course completed' | t }}</span><p>{{ 'Your course progress is saved. Choose a lab separately whenever you are ready.' | t }}</p></div>
