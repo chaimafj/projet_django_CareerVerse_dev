@@ -124,6 +124,19 @@ ion-button.retake-button {
   --background-activated: #5b21b6;
   --color: #fff;
 }
+.simulation-action,
+.simulation-secondary-action { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 50px; border-radius: 12px; padding: 13px 20px; font: inherit; font-weight: 750; transition: transform .18s, box-shadow .18s, background .18s; }
+.simulation-action { border: 1px solid #3a6ee8; background: linear-gradient(135deg, #146bff, #4d4bd8); color: #fff; box-shadow: 0 8px 22px #146bff2e; }
+.simulation-action:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 11px 28px #146bff3d; background: linear-gradient(135deg, #0e5eea, #403dbf); }
+.simulation-action.retake-button { border-color: #6d28d9; background: linear-gradient(135deg, #7c3aed, #5b21b6); box-shadow: 0 8px 22px #6d28d930; }
+.simulation-action.retake-button:hover:not(:disabled) { background: linear-gradient(135deg, #6d28d9, #4c1d95); }
+.simulation-action-icon { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; background: #ffffff24; font-size: .875rem; }
+.simulation-action-arrow { margin-inline-start: 4px; font-size: 1.2rem; line-height: 1; }
+.simulation-secondary-action { border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.simulation-secondary-action:hover:not(:disabled) { border-color: #8caef4; background: var(--soft); }
+.simulation-action:disabled, .simulation-secondary-action:disabled { cursor: not-allowed; opacity: .5; transform: none; box-shadow: none; }
+.simulation-action ion-spinner { width: 22px; height: 22px; }
+.simulation-page-actions { margin-top: 28px; }
 .secondary-link { display: inline-block; padding: 10px 0; font-size: 1rem; font-weight: 700; }
 .hero-panel { background: linear-gradient(115deg,#123270,#165fe7 65%,#695af1); border-radius: 22px; padding: 38px; color: #fff; display: flex; justify-content: space-between; overflow: hidden; margin-bottom: 25px; }
 .hero-panel h2 { font-size: 37px; line-height: 1.15; margin-bottom: 14px; }
@@ -508,5 +521,7 @@ app-google-signin .small { margin-top: 10px; }
   .dashboard-shortcuts small, .shortcut-arrow { display: none; }
 }
 @media (prefers-reduced-motion:reduce) {
+  .simulation-action, .simulation-secondary-action { transition: none; }
+  .simulation-action:hover:not(:disabled) { transform: none; }
   *,*::before,*::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

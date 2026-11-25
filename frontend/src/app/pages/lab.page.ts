@@ -40,7 +40,14 @@ import { CareerAssessmentComponent } from '../widgets/career-assessment.componen
           <div class="info-panel">{{ 'Active Premium is required to start this lab.' | t }}</div>
           <a routerLink="/premium" class="button-link">{{ 'Get Premium →' | t }}</a>
         } @else {
-          <p>{{ 'The timer starts when you begin. You can review your answers before submitting.' | t }}</p><ion-button [class.retake-button]="lab.completed" [disabled]="starting() || lab.question_count === 0" (click)="start()">@if (starting()) { <ion-spinner name="dots" /> } @else { {{ (lab.completed ? 'Retake simulation' : 'Begin simulation') | t }} } </ion-button>
+          <p>{{ 'The timer starts when you begin. You can review your answers before submitting.' | t }}</p>
+          <button type="button" class="simulation-action" [class.retake-button]="lab.completed" [disabled]="starting() || lab.question_count === 0" (click)="start()">
+            @if (starting()) { <ion-spinner name="dots" /> } @else {
+              <span class="simulation-action-icon" aria-hidden="true">{{ lab.completed ? '↻' : '▶' }}</span>
+              <span>{{ (lab.completed ? 'Retake simulation' : 'Begin simulation') | t }}</span>
+              <span class="simulation-action-arrow" aria-hidden="true">→</span>
+            }
+          </button>
         }
       </section>
     }
@@ -67,9 +74,10 @@ import { CareerAssessmentComponent } from '../widgets/career-assessment.componen
         </div>
         }</section>
       }
-      <div class="page-actions"><ion-button fill="outline" [disabled]="index() === 0 || saving()" (click)="index.set(index() - 1)">{{ 'Previous' | t }}</ion-button>
-        @if (index() < a.questions.length - 1) { <ion-button [disabled]="!hasCurrentAnswer() || saving()" (click)="index.set(index() + 1)">{{ 'Next question →' | t }}</ion-button> }
-        @else { <ion-button [disabled]="!allAnswered() || saving()" (click)="submit()">@if (saving()) { <ion-spinner name="dots" /> } @else { {{ 'Submit & see results' | t }} } </ion-button> }
+      <div class="page-actions simulation-page-actions">
+        <button type="button" class="simulation-secondary-action" [disabled]="index() === 0 || saving()" (click)="index.set(index() - 1)">← {{ 'Previous' | t }}</button>
+        @if (index() < a.questions.length - 1) { <button type="button" class="simulation-action" [disabled]="!hasCurrentAnswer() || saving()" (click)="index.set(index() + 1)">{{ 'Next question →' | t }}</button> }
+        @else { <button type="button" class="simulation-action" [disabled]="!allAnswered() || saving()" (click)="submit()">@if (saving()) { <ion-spinner name="dots" /> } @else { <span>{{ 'Submit & see results' | t }}</span><span class="simulation-action-arrow" aria-hidden="true">→</span> } </button> }
       </div>
       <p class="muted">{{ answeredCount() }} / {{ a.questions.length }} {{ 'questions answered' | t }}</p>
       <p class="small muted">{{ 'Default scoring: 80% answer accuracy + 20% time score. A submitted attempt cannot be changed.' | t }}</p>
