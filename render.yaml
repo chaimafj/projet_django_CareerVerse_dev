@@ -57,7 +57,9 @@ services:
         fromService:
           name: careerverse-api
           type: web
-          property: hostport
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+      - key: BACKEND_SCHEME
+        value: https
 
 databases:
   - name: careerverse-db

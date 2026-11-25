@@ -18,4 +18,5 @@ RUN chmod +x /docker-entrypoint.d/40-careerverse-envsubst.sh
 
 EXPOSE 80
 ENV PORT=80 \
+    BACKEND_SCHEME=http \
     BACKEND_HOSTPORT=backend:8000
