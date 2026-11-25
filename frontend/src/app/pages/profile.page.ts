@@ -48,7 +48,7 @@ import { CareerAssessmentComponent } from '../widgets/career-assessment.componen
           <p class="small muted">{{ 'Select up to 30 interests. Save profile to keep your changes.' | t }}</p>
           @if (interestError()) { <p class="error" role="alert">{{ interestError() | t }}</p> }
         </fieldset>
-        <ion-button type="submit" [disabled]="form.invalid || saving() || photoBusy()">@if (saving()) { <ion-spinner name="dots" /> } @else { {{ 'Save profile' | t }} } </ion-button>
+        <button class="auth-submit" type="submit" [disabled]="form.invalid || saving() || photoBusy()">@if (saving()) { <ion-spinner name="dots" /> } @else { {{ 'Save profile' | t }} } </button>
       </form>
     </section><aside><section class="panel fact-panel"><h2>{{ 'Your access' | t }}</h2>
       @if (billing(); as status) {

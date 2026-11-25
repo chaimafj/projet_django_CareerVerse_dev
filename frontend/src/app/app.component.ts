@@ -5,7 +5,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from './core/auth.service';
 import { errorMessage } from './core/api.service';
-import { ChatPage } from './pages/chat.page';
 import { PushService } from './core/push.service';
 import { AppIconComponent } from './widgets/app-icon.component';
 import { NotificationCountService } from './core/notification-count.service';
@@ -13,7 +12,7 @@ import { NotificationCountService } from './core/notification-count.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TranslatePipe, IonicModule, RouterLink, RouterLinkActive, RouterOutlet, ChatPage, AppIconComponent],
+  imports: [TranslatePipe, IonicModule, RouterLink, RouterLinkActive, RouterOutlet, AppIconComponent],
   template: `
     <ion-app>
       <div class="app-frame">
@@ -69,19 +68,10 @@ import { NotificationCountService } from './core/notification-count.service';
         </main>
       </div>
       @if (auth.user() && !onChatPage) {
-        <button class="assistant-fab" [attr.aria-label]=" 'Open CareerVerse assistant' | t " aria-haspopup="dialog" [attr.aria-expanded]="chatOpen()" (click)="chatOpen.set(true)">
+        <a class="assistant-fab" routerLink="/chat" [attr.aria-label]=" 'Open CareerVerse assistant' | t ">
           <app-icon name="chatbot" />
           <span>{{ 'Career assistant' | t }}</span>
-        </button>
-        <ion-modal class="assistant-modal" [isOpen]="chatOpen()" (didDismiss)="chatOpen.set(false)" [attr.aria-label]=" 'CareerVerse assistant' | t ">
-          <ng-template>
-            <ion-header><ion-toolbar>
-              <ion-title>{{ 'CareerVerse assistant' | t }}</ion-title>
-              <ion-buttons slot="end"><ion-button [attr.aria-label]=" 'Close career assistant' | t " (click)="chatOpen.set(false)">{{ 'Close' | t }}</ion-button></ion-buttons>
-            </ion-toolbar></ion-header>
-            <ion-content><div class="assistant-content"><app-career-chat [embedded]="true" /></div></ion-content>
-          </ng-template>
-        </ion-modal>
+        </a>
       }
     </ion-app>
   `,
@@ -95,7 +85,6 @@ export class AppComponent {
   readonly dark = signal(localStorage.getItem('cv-web-theme') === 'dark');
   readonly error = signal('');
   readonly loggingOut = signal(false);
-  readonly chatOpen = signal(false);
   get onChatPage() { return this.router.url.split('?')[0] === '/chat'; }
   constructor() {
     this.applyTheme();
@@ -111,7 +100,6 @@ export class AppComponent {
     });
     this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.chatOpen.set(false);
         void this.notificationCount.refresh();
       }
     });

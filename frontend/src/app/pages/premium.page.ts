@@ -53,14 +53,14 @@ interface BillingStatus {
             <p><strong>{{ money(s.amount, s.currency) }}</strong> / {{ s.duration_days }} {{ 'days of Premium' | t }}</p>
             <p>{{ 'One-time test payment. No automatic renewal. Each confirmed payment adds 30 days.' | t }}</p>
             @if (!s.configured) { <p class="muted">{{ 'Stripe is not configured. No payment can be started.' | t }}</p> }
-            <ion-button [disabled]="busy() || !s.configured || waiting()" (click)="checkout()">{{ 'Extend Premium by 30 days' | t }}</ion-button>
+            <button class="primary-action" type="button" [disabled]="busy() || !s.configured || waiting()" (click)="checkout()">{{ 'Extend Premium by 30 days' | t }}</button>
             <p class="small muted">{{ 'Stripe test mode: no real money is charged. Access unlocks only after verified payment confirmation.' | t }}</p>
           </details>
         } @else {
           <div class="premium-offer">
           <h2>{{ money(s.amount, s.currency) }} <small>/ {{ s.duration_days }} {{ 'days of Premium' | t }}</small></h2>
           <p>{{ 'One-time test payment. No automatic renewal. Each confirmed payment adds 30 days.' | t }}</p>
-          <ion-button [disabled]="busy() || !s.configured || waiting()" (click)="checkout()">{{ 'Activate Premium for 30 days' | t }}</ion-button>
+          <button class="primary-action" type="button" [disabled]="busy() || !s.configured || waiting()" (click)="checkout()">{{ 'Activate Premium for 30 days' | t }}</button>
           <p class="small muted">{{ 'Stripe test mode: no real money is charged. Access unlocks only after verified payment confirmation.' | t }}</p>
         </div>
         <p class="muted">{{ 'Free learning paths remain free. Premium adds an advanced preparation course and a five-task interactive simulation for each installed career.' | t }}</p>
@@ -73,7 +73,7 @@ interface BillingStatus {
         <div class="page-actions"><a routerLink="/courses" class="button-link">{{ 'Browse preparation courses' | t }}</a><a routerLink="/labs" class="button-link">{{ 'Explore simulations' | t }}</a></div>
         }
       }
-      <button class="theme-button" [disabled]="busy()" (click)="load()">{{ 'Refresh status' | t }}</button>
+      <button class="theme-button" type="button" [disabled]="busy()" (click)="load()">{{ 'Refresh status' | t }}</button>
       @if (busy()) { <p role="status"><ion-spinner />{{ 'Loading...' | t }}</p> }
     </section>
     <section class="panel payment-history">
@@ -91,6 +91,8 @@ interface BillingStatus {
   `,
   styles: [`
     .premium-offer { margin: 26px 0; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--soft); }
+    .primary-action { min-height: 46px; border: 0; border-radius: 10px; padding: 12px 20px; background: var(--ion-color-primary); color: #fff; font: inherit; font-weight: 700; }
+    .primary-action:disabled { cursor: not-allowed; opacity: .55; }
     .premium-offer h2 { font-size: 2rem; }
     .premium-offer h2 small { font-size: 1rem; color: var(--muted); }
     .payment-history { margin-top: 24px; }
