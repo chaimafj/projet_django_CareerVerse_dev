@@ -1,5 +1,5 @@
 import { LocalDatePipe, LocaleService, TranslatePipe } from '../core/locale.service';
-import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject, input, signal } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
@@ -16,7 +16,14 @@ import { AppIconComponent } from '../widgets/app-icon.component';
     <section class="chat-studio" [class.chat-embedded]="embedded()">
     <header class="chat-header">
       <div class="chat-identity"><span class="assistant-mark"><app-icon name="sparkles" /></span><div><span class="chat-eyebrow">{{ 'YOUR CAREER COMPANION' | t }}</span>@if (!embedded()) { <h1>{{ 'Career assistant' | t }}</h1> } @else { <h2>{{ 'A clearer path forward.' | t }}</h2> }<span class="chat-status"><span aria-hidden="true"></span>{{ 'Catalogue-based guidance' | t }}</span></div></div>
-      <button class="chat-clear" [disabled]="loading() || busy() || !exchanges().length" (click)="clear()">{{ 'Clear history' | t }}</button>
+      <div class="chat-header-actions">
+        <button class="chat-clear" type="button" [disabled]="loading() || busy() || !exchanges().length" (click)="clear()">{{ 'Clear history' | t }}</button>
+        @if (embedded()) {
+          <button class="chat-close" type="button" [attr.aria-label]="'Close assistant' | t" (click)="close.emit()"><app-icon name="close" /></button>
+        } @else {
+          <a class="chat-close" routerLink="/" [attr.aria-label]="'Close assistant' | t"><app-icon name="close" /></a>
+        }
+      </div>
     </header>
     <div class="chat-trust"><app-icon name="shield" /><p>{{ 'Local, rule-based guidance using the catalogue and your saved progress. No data is sent to external AI services.' | t }}</p></div>
     <section class="chat-panel">
@@ -66,6 +73,7 @@ import { AppIconComponent } from '../widgets/app-icon.component';
 export class ChatPage implements OnInit, AfterViewChecked {
   private readonly locale = inject(LocaleService);
   readonly embedded = input(false);
+  readonly close = output<void>();
   @ViewChild('history') private history?: ElementRef<HTMLDivElement>;
   @ViewChild('messageInput') private messageInput?: ElementRef<HTMLTextAreaElement>;
   private scrollPending = false;

@@ -1,5 +1,5 @@
 import { LocaleService, TranslatePipe } from './core/locale.service';
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, effect, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
@@ -8,11 +8,12 @@ import { errorMessage } from './core/api.service';
 import { PushService } from './core/push.service';
 import { AppIconComponent } from './widgets/app-icon.component';
 import { NotificationCountService } from './core/notification-count.service';
+import { ChatPage } from './pages/chat.page';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TranslatePipe, IonicModule, RouterLink, RouterLinkActive, RouterOutlet, AppIconComponent],
+  imports: [TranslatePipe, IonicModule, RouterLink, RouterLinkActive, RouterOutlet, AppIconComponent, ChatPage],
   template: `
     <ion-app>
       <div class="app-frame">
@@ -68,10 +69,17 @@ import { NotificationCountService } from './core/notification-count.service';
         </main>
       </div>
       @if (auth.user() && !onChatPage) {
-        <a class="assistant-fab" routerLink="/chat" [attr.aria-label]=" 'Open CareerVerse assistant' | t ">
+        <button type="button" class="assistant-fab" [attr.aria-label]=" 'Open CareerVerse assistant' | t " aria-haspopup="dialog" [attr.aria-expanded]="chatOpen()" (click)="openAssistant()">
           <app-icon name="chatbot" />
           <span>{{ 'Career assistant' | t }}</span>
-        </a>
+        </button>
+        @if (chatOpen()) {
+          <div class="assistant-overlay" role="presentation" (click)="closeAssistant()">
+            <section class="assistant-panel" role="dialog" aria-modal="true" [attr.aria-label]="'CareerVerse assistant' | t" (click)="$event.stopPropagation()">
+              <app-career-chat [embedded]="true" (close)="closeAssistant()" />
+            </section>
+          </div>
+        }
       }
     </ion-app>
   `,
@@ -85,6 +93,7 @@ export class AppComponent {
   readonly dark = signal(localStorage.getItem('cv-web-theme') === 'dark');
   readonly error = signal('');
   readonly loggingOut = signal(false);
+  readonly chatOpen = signal(false);
   get onChatPage() { return this.router.url.split('?')[0] === '/chat'; }
   constructor() {
     this.applyTheme();
@@ -100,6 +109,7 @@ export class AppComponent {
     });
     this.router.events.pipe(takeUntilDestroyed()).subscribe(event => {
       if (event instanceof NavigationEnd) {
+        this.chatOpen.set(false);
         void this.notificationCount.refresh();
       }
     });
@@ -119,6 +129,13 @@ export class AppComponent {
     }
   }
   private applyTheme() { document.documentElement.classList.toggle('dark', this.dark()); }
+  openAssistant() {
+    this.chatOpen.set(true);
+    queueMicrotask(() => document.querySelector<HTMLButtonElement>('.assistant-panel .chat-close')?.focus());
+  }
+  closeAssistant() { this.chatOpen.set(false); }
+  @HostListener('document:keydown.escape')
+  closeAssistantOnEscape() { if (this.chatOpen()) this.closeAssistant(); }
   async logout() {
     this.loggingOut.set(true);
     this.error.set('');

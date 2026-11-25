@@ -319,6 +319,7 @@ const entries: [string, string, string][] = [
   ['Open CareerVerse assistant',"Ouvrir l'assistant CareerVerse",'فتح مساعد CareerVerse'],
   ['Close career assistant',"Fermer l'assistant",'إغلاق المساعد'],
   ['Close','Fermer','إغلاق'],
+  ['Close assistant','Fermer l’assistant','إغلاق المساعد'],
   ['Clear history',"Effacer l'historique",'مسح السجل'],
   ['Retry loading','Recharger','إعادة التحميل'],
   ['Loading conversation','Chargement de la conversation','جارٍ تحميل المحادثة'],

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-export type AppIcon = 'home' | 'compass' | 'book' | 'lab' | 'sparkles' | 'chatbot' | 'user' | 'bell' | 'crown' | 'shield' | 'logout' | 'sun' | 'moon';
+export type AppIcon = 'home' | 'compass' | 'book' | 'lab' | 'sparkles' | 'chatbot' | 'user' | 'bell' | 'crown' | 'shield' | 'logout' | 'sun' | 'moon' | 'close';
 
 const PATHS: Record<AppIcon, string> = {
   home: 'M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z',
@@ -16,6 +16,7 @@ const PATHS: Record<AppIcon, string> = {
   logout: 'M9 3H4v18h5 M9 12h12 m-4-4 4 4-4 4',
   sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5 19 19 M5 19l1.5-1.5 M17.5 6.5 19 5',
   moon: 'M21 13a9 9 0 0 1-10-10A9 9 0 1 0 21 13',
+  close: 'M6 6l12 12 M18 6 6 18',
 };
 
 @Component({

@@ -25,7 +25,7 @@ function load(file, providers, globals={}) {
       token===NotificationCountServiceToken?{refresh:async()=>{},unread:()=>0,error:()=>''}:
       token===BillingHistoryServiceToken?{save:async()=>{},read:async()=>undefined}:
       token===AuthServiceToken?{user:()=>null}:token===LocaleService?{language:()=>'en'}:undefined,
-      signal,input:signal,ViewChild:()=>()=>{},computed:fn=>fn,Injectable:()=>target=>target,Component:()=>target=>target,Input:()=>()=>{},Output:()=>()=>{},EventEmitter:class{emit(value){this.value=value;}}};
+      signal,input:signal,output:()=>({emit() {}}),ViewChild:()=>()=>{},computed:fn=>fn,Injectable:()=>target=>target,Component:()=>target=>target,Input:()=>()=>{},Output:()=>()=>{},EventEmitter:class{emit(value){this.value=value;}}};
     if(name.endsWith('api.service')) return {ApiService,errorMessage:error=>error.message};
     if(name.endsWith('locale.service')) return {LocaleService,TranslatePipe:class{},LocalDatePipe:class{}};
     if(name==='@angular/router') return {ActivatedRoute,Router,RouterLink:class{}};
@@ -866,8 +866,13 @@ const premiumSource=readFileSync('src/app/pages/premium.page.ts','utf8');
 assert.match(premiumSource,/<button class="primary-action" type="button"[^>]*\(click\)="checkout\(\)"/);
 assert.doesNotMatch(premiumSource,/<ion-button[^>]*\(click\)="checkout\(\)"/);
 const appSource=readFileSync('src/app/app.component.ts','utf8');
-assert.match(appSource,/<a class="assistant-fab" routerLink="\/chat"/);
+assert.match(appSource,/<button type="button" class="assistant-fab"/);
+assert.match(appSource,/<section class="assistant-panel" role="dialog" aria-modal="true"/);
+assert.match(appSource,/\(close\)="closeAssistant\(\)"/);
 assert.doesNotMatch(appSource,/<ion-modal class="assistant-modal"/);
+const chatSource=readFileSync('src/app/pages/chat.page.ts','utf8');
+assert.match(chatSource,/class="chat-close"/);
+assert.match(chatSource,/\(click\)="close\.emit\(\)"/);
 const labSource=readFileSync('src/app/pages/lab.page.ts','utf8');
 assert.match(labSource,/class="simulation-action"/);
 assert.match(labSource,/class="simulation-secondary-action"/);
