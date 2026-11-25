@@ -12,6 +12,19 @@ export class AuthService {
   readonly user = signal<User | null>(null);
   private initialization?: Promise<void>;
 
+  private async retrySessionRequest<T>(request: () => Promise<T>): Promise<T> {
+    const retryable = (error: unknown) =>
+      error instanceof HttpErrorResponse && (error.status === 0 || error.status >= 500);
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await request();
+      } catch (error) {
+        if (!retryable(error) || attempt >= 5) throw error;
+        await new Promise(resolve => setTimeout(resolve, 5000 * (attempt + 1)));
+      }
+    }
+  }
+
   initialize(): Promise<void> {
     return this.initialization ??= this.restore().catch(error => {
       this.initialization = undefined;
@@ -20,9 +33,9 @@ export class AuthService {
   }
 
   private async restore() {
-    await this.api.csrf();
+    await this.retrySessionRequest(() => this.api.csrf());
     try {
-      this.user.set(await this.api.me());
+      this.user.set(await this.retrySessionRequest(() => this.api.me()));
     } catch (error) {
       if (error instanceof HttpErrorResponse && [401, 403].includes(error.status)) {
         this.user.set(null);
@@ -33,7 +46,7 @@ export class AuthService {
   }
 
   async authenticate(mode: 'login' | 'register', data: {email: string; password: string; name: string}) {
-    await this.api.csrf();
+    await this.retrySessionRequest(() => this.api.csrf());
     const payload = mode === 'register' ? data : {email: data.email, password: data.password};
     const user = await this.api.post<User>(`auth/${mode}/`, payload, {'Accept-Language': this.locale.language()});
     this.user.set(user);
@@ -45,14 +58,14 @@ export class AuthService {
   }
 
   async authenticateGoogle(credential: string) {
-    await this.api.csrf();
+    await this.retrySessionRequest(() => this.api.csrf());
     const user = await this.api.post<User>('auth/google/', {credential}, {'Accept-Language': this.locale.language()});
     this.user.set(user);
     this.initialization = Promise.resolve();
   }
 
   async requestPasswordReset(email: string) {
-    await this.api.csrf();
+    await this.retrySessionRequest(() => this.api.csrf());
     await this.api.post('auth/password-reset/', {email: email.trim()}, {'Accept-Language': this.locale.language()});
   }
 
