@@ -859,6 +859,16 @@ assert.equal(loginReset.resetEmail(),'','A failed resend clears the previous suc
 resetError=false;
 resetCalls.length=0;
 console.log('Verified inline login recovery: empty/invalid email, no password required, busy guard, localized real API request and no success on failure.');
+const profileSource=readFileSync('src/app/pages/profile.page.ts','utf8');
+assert.match(profileSource,/<button class="auth-submit" type="submit"/);
+assert.doesNotMatch(profileSource,/<ion-button type="submit"[^>]*>[^<]*\{\{\s*'Save profile'/);
+const premiumSource=readFileSync('src/app/pages/premium.page.ts','utf8');
+assert.match(premiumSource,/<button class="primary-action" type="button"[^>]*\(click\)="checkout\(\)"/);
+assert.doesNotMatch(premiumSource,/<ion-button[^>]*\(click\)="checkout\(\)"/);
+const appSource=readFileSync('src/app/app.component.ts','utf8');
+assert.match(appSource,/<a class="assistant-fab" routerLink="\/chat"/);
+assert.doesNotMatch(appSource,/<ion-modal class="assistant-modal"/);
+console.log('Verified native profile, Premium and assistant controls without Ionic action wrappers.');
 const {PasswordResetPage}=load('src/app/pages/password-reset.page.ts',resetProviders);
 const requestReset=new PasswordResetPage();
 requestReset.email=' qa@example.test ';
