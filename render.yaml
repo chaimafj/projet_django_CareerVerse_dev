@@ -1,0 +1,69 @@
+services:
+  - type: web
+    name: careerverse-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    region: frankfurt
+    plan: free
+    healthCheckPath: /health/
+    autoDeployTrigger: commit
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: careerverse-api
+      - key: DATABASE_URL
+        fromDatabase:
+          name: careerverse-db
+          property: connectionString
+      - key: POSTGRES_SSLMODE
+        value: require
+      - key: FRONTEND_HOST
+        fromService:
+          name: careerverse-web
+          type: web
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_ID
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+
+  - type: web
+    name: careerverse-web
+    runtime: docker
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    region: frankfurt
+    plan: free
+    healthCheckPath: /
+    autoDeployTrigger: commit
+    envVars:
+      - key: BACKEND_HOSTPORT
+        fromService:
+          name: careerverse-api
+          type: web
+          property: hostport
+
+databases:
+  - name: careerverse-db
+    region: frankfurt
+    plan: free
+    postgresMajorVersion: "17"
+    databaseName: careerverse
+    user: careerverse
+    ipAllowList: []

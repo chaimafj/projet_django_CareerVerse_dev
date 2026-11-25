@@ -2,30 +2,55 @@ services:
   database:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: careerverse
-      POSTGRES_USER: careerverse
-      POSTGRES_PASSWORD: careerverse-local
+      POSTGRES_DB: ${POSTGRES_DB:-careerverse}
+      POSTGRES_USER: ${POSTGRES_USER:-careerverse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-careerverse-local}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U careerverse -d careerverse"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - static-data:/app/staticfiles
     environment:
-      DJANGO_DEBUG: "0"
-      DJANGO_SECRET_KEY: "local-compose-only-change-before-deployment"
-      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
-      DATABASE_URL: "postgresql://careerverse:careerverse-local@database:5432/careerverse"
-      WEB_APP_ORIGIN: "http://localhost:8080"
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-compose-only-change-before-deployment}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-careerverse}:${POSTGRES_PASSWORD:-careerverse-local}@database:5432/${POSTGRES_DB:-careerverse}
+      WEB_APP_ORIGIN: ${WEB_APP_ORIGIN:-http://localhost:8080}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.smtp.EmailBackend}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-1}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
     depends_on:
       database:
         condition: service_healthy
     command: >
       sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
              python manage.py seed_demo &&
              python manage.py seed_extended &&
              python manage.py seed_premium &&
@@ -37,26 +62,37 @@ services:
       retries: 5
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - static-data:/var/www/static:ro
     ports:
-      - "8080:80"
+      - "${FRONTEND_PORT:-8080}:80"
     depends_on:
       backend:
         condition: service_healthy
 
   push-worker:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DJANGO_DEBUG: "0"
-      DJANGO_SECRET_KEY: "local-compose-only-change-before-deployment"
-      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
-      DATABASE_URL: "postgresql://careerverse:careerverse-local@database:5432/careerverse"
-      WEB_APP_ORIGIN: "http://localhost:8080"
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-0}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-local-compose-only-change-before-deployment}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-careerverse}:${POSTGRES_PASSWORD:-careerverse-local}@database:5432/${POSTGRES_DB:-careerverse}
+      WEB_APP_ORIGIN: ${WEB_APP_ORIGIN:-http://localhost:8080}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
     depends_on:
       backend:
         condition: service_healthy
-    command: sh -c "while true; do python manage.py send_push_notifications || true; sleep 60; done"
+    command: sh -c "while true; do python manage.py send_push_notifications; sleep 60; done"
 
 volumes:
   postgres-data:
+  static-data:

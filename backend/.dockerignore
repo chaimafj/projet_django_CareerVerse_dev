@@ -1,0 +1,15 @@
+.dev-secret-key
+.venv
+__pycache__
+*.pyc
+*.pyo
+db.sqlite3
+local-settings.ps1
+private-emails
+reports
+staticfiles
+uploads
+vapid-keys.local
+.pytest_cache
+.coverage
+htmlcov

@@ -8,6 +8,13 @@ db.sqlite3
 *.sqlite3
 .env
 .env.*
+!.env.example
 backend/local-settings.ps1
 media/
 private-emails/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform/environments/*.tfvars.example
+backend/staticfiles/

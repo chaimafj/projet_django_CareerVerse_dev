@@ -70,3 +70,11 @@ class SecretKeyTests(TestCase):
         with self.assertRaisesMessage(ImproperlyConfigured, "local .dev-secret-key is invalid"):
             self.resolve()
         self.assertEqual(path.read_text(encoding="utf-8"), "invalid")
+
+
+class HealthCheckTests(TestCase):
+    def test_health_check_is_public_and_non_sensitive(self):
+        response = self.client.get("/health/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
