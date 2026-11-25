@@ -25,7 +25,6 @@ import { AppIconComponent } from '../widgets/app-icon.component';
         }
       </div>
     </header>
-    <div class="chat-trust"><app-icon name="shield" /><p>{{ 'Local, rule-based guidance using the catalogue and your saved progress. No data is sent to external AI services.' | t }}</p></div>
     <section class="chat-panel">
       @if (error()) { <div role="alert" class="error">{{ (error()) | t }} @if (loadFailed()) { <button class="theme-button" (click)="load()">{{ 'Retry loading' | t }}</button> }</div> }
       @if (loading()) { <div class="chat-loading" role="status"><ion-spinner name="dots" /><p>{{ 'Loading conversation' | t }}</p></div> }
