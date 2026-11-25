@@ -7,11 +7,10 @@ import { AuthService } from '../core/auth.service';
 import { errorMessage } from '../core/api.service';
 import { CareerCarouselComponent } from '../widgets/career-carousel.component';
 import { AppIconComponent } from '../widgets/app-icon.component';
-import { GoogleSigninComponent } from '../widgets/google-signin.component';
 
 @Component({
   standalone: true,
-  imports: [TranslatePipe, FormsModule, IonicModule, RouterLink, CareerCarouselComponent, AppIconComponent, GoogleSigninComponent],
+  imports: [TranslatePipe, FormsModule, IonicModule, RouterLink, CareerCarouselComponent, AppIconComponent],
   template: `
     <div class="auth-layout welcome-layout">
       <section class="auth-story">
@@ -41,12 +40,11 @@ import { GoogleSigninComponent } from '../widgets/google-signin.component';
           @if (register) {
             <label>{{ 'Confirm password' | t }}<input name="confirm" [(ngModel)]="confirm" required type="password" autocomplete="new-password" [placeholder]=" 'Repeat your password' | t "></label>
           }
-          <ion-button expand="block" type="submit" [disabled]="form.invalid || busy()">
+          <button class="auth-submit" type="submit" [disabled]="form.invalid || busy()">
             @if (busy()) { <ion-spinner name="dots" /> } @else { {{ (register ? 'Create account' : 'Sign in') | t }} }
-          </ion-button>
+          </button>
           @if (!register) { <button type="button" class="forgot-password" [disabled]="busy()" (click)="forgotPassword(emailField.valid === true)">{{ 'Forgot your password?' | t }}</button> }
         </form>
-        <app-google-signin (credential)="googleLogin($event)" />
         <p class="auth-switch">{{ (register ? 'Already have an account?' : 'New to CareerVerse?') | t }}
           <a [routerLink]="register ? '/login' : '/register'">{{ (register ? 'Sign in' : 'Create an account') | t }}</a>
         </p>
@@ -87,15 +85,6 @@ export class AuthPage {
   private async navigateAfterLogin() {
     const next = this.route.snapshot.queryParamMap.get('next');
     await this.router.navigateByUrl(next?.startsWith('/') && !next.startsWith('//') ? next : '/');
-  }
-  async googleLogin(credential: string) {
-    if (this.busy()) return;
-    this.busy.set(true); this.error.set(''); this.resetEmail.set('');
-    try {
-      await this.auth.authenticateGoogle(credential);
-      await this.navigateAfterLogin();
-    } catch(error) { this.error.set(errorMessage(error)); }
-    finally { this.busy.set(false); }
   }
   async submit() {
     if (this.busy()) return;
