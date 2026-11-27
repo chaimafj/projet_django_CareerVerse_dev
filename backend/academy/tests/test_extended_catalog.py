@@ -4,8 +4,8 @@ from django.core.management import call_command
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
-from .extended_data import CAREERS
-from .models import Attempt, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
+from ..extended_data import CAREERS
+from ..models import Attempt, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])

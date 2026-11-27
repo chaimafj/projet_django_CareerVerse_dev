@@ -19,6 +19,29 @@ python -m venv .venv
 .\.venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
 ```
 
+## Structure
+
+```text
+academy/
+  management/       # Django commands and seeders
+  migrations/       # Database migrations
+  tests/            # Django regression tests
+  weights/          # CareerNet weights
+config/             # Project settings and URL configuration
+templates/          # Project-level Django templates
+tools/              # Load, security and quality automation
+```
+
+Run the checks from `backend\`:
+
+```powershell
+.\tools\quality.ps1
+.\tools\dast.ps1
+.\tools\performance.ps1
+```
+
+Generated outputs in `backend\reports\` are ignored and should not be committed.
+
 `seed_demo` atomically upserts Angular, Cloud and Cybersecurity, each with three
 levels, a course per lab, three lessons and three questions per lab (27 questions
 total, including multiple-choice questions). Reruns retain seeded IDs, reset demo

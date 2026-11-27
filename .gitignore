@@ -18,3 +18,7 @@ private-emails/
 *.tfvars
 !terraform/environments/*.tfvars.example
 backend/staticfiles/
+backend/reports/
+backend/.coverage
+backend/.coverage.*
+backend/htmlcov/

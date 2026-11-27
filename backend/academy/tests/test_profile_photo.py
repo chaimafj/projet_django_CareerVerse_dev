@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from PIL import Image
 from rest_framework.test import APIClient
 
-from .models import User
+from ..models import User
 
 
 def photo(format="PNG", size=(1000, 600)):

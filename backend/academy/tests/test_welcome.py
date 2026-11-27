@@ -3,8 +3,8 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 from rest_framework.test import APIClient
 
-from .models import Notification, PushSubscription, User
-from .push import welcome_once
+from ..models import Notification, PushSubscription, User
+from ..push import welcome_once
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])

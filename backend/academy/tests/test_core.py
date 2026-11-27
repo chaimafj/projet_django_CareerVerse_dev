@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from .models import Attempt, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
+from ..models import Attempt, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
 
 PASSWORD = "Unusual-passphrase-932!"
 FAST_PASSWORDS = ["django.contrib.auth.hashers.MD5PasswordHasher"]

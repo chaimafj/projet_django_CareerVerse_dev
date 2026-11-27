@@ -10,4 +10,8 @@ vapid-keys*
 .dev-secret-key*
 .test-secret-*/
 uploads/
+reports/
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/

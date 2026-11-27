@@ -8,6 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Force reports\performance | Out-Null
 & .\.venv\Scripts\python.exe -m locust `
+    --locustfile tools\locustfile.py `
     --headless `
     --host $HostUrl `
     --users $Users `

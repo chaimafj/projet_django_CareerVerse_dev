@@ -2,7 +2,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from .models import Notification, PushDelivery, PushSubscription, User
+from ..models import Notification, PushDelivery, PushSubscription, User
 
 
 @override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"])

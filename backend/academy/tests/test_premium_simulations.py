@@ -9,8 +9,8 @@ from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIClient
 
-from .models import Attempt, Course, Lab, Option, Question, User
-from .services import grade, public_attempt, snapshot_lab
+from ..models import Attempt, Course, Lab, Option, Question, User
+from ..services import grade, public_attempt, snapshot_lab
 from .test_premium_labs import correct_answers
 
 

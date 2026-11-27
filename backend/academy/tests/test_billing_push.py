@@ -18,10 +18,10 @@ from django.utils import timezone
 from pywebpush import WebPushException
 from rest_framework.test import APIClient
 
-from .models import (
+from ..models import (
     Attempt, Lab, Notification, PremiumCheckout, PushDelivery, PushSubscription, Result, User,
 )
-from .push import NoRedirectSession, enqueue_notification, send_pending
+from ..push import NoRedirectSession, enqueue_notification, send_pending
 
 
 def encoded(value):

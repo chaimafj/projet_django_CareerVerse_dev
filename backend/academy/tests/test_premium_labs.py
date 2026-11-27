@@ -6,8 +6,8 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from .models import Attempt, Course, CourseCompletion, Lab, User
-from .services import public_attempt
+from ..models import Attempt, Course, CourseCompletion, Lab, User
+from ..services import public_attempt
 
 
 def correct_answers(snapshot):

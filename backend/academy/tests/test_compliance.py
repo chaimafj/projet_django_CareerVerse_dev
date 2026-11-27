@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from .models import AuditLog, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
+from ..models import AuditLog, Career, Course, CourseCompletion, Lab, Option, Question, Result, User
 
 
 class ComplianceTests(TestCase):

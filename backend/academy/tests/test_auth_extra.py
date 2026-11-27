@@ -11,7 +11,7 @@ from django.utils import timezone
 from google.auth.exceptions import TransportError
 from rest_framework.test import APIClient
 
-from .models import GoogleIdentity, Notification, User
+from ..models import GoogleIdentity, Notification, User
 
 
 @override_settings(
